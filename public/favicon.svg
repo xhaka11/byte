@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e85d2a"/>
+      <stop offset="100%" stop-color="#f5a623"/>
+    </linearGradient>
+  </defs>
+  <!-- Dark background with clipped corners (matches site panel style) -->
+  <rect width="64" height="64" rx="8" fill="#1a1412"/>
+  <!-- Border glow -->
+  <rect x="1.5" y="1.5" width="61" height="61" rx="7" fill="none" stroke="#e85d2a" stroke-opacity="0.35" stroke-width="1"/>
+  <!-- Emblem bolt shape (matches site logo) -->
+  <path d="M14 8 L38 52 L50 52 L50 32 L34 8 Z" fill="none" stroke="url(#g)" stroke-width="4" stroke-linejoin="miter"/>
+  <!-- Filled inner bolt -->
+  <path d="M22 16 L36 44 L30 44 L22 30 Z" fill="url(#g)"/>
+</svg>
