@@ -1,6 +1,6 @@
 import { Music2 } from "lucide-react";
 
-import { Emblem } from "./Emblem";
+import logoImg from "@/assets/logo.png";
 import { playerConfig } from "@/config/player";
 
 function DiscordIcon({ className = "h-4 w-4" }: { className?: string }) {
@@ -32,8 +32,8 @@ export function Footer() {
         <div className="relative mx-auto mb-8 h-24 w-24">
           <div className="absolute inset-0 rounded-full bg-primary/15 blur-2xl animate-glow-pulse" />
           <div className="absolute inset-0 rounded-full border border-primary/25 animate-spin-slow" />
-          <div className="absolute inset-0 grid place-items-center text-primary">
-            <Emblem className="h-12 w-12" />
+          <div className="absolute inset-0 grid place-items-center">
+            <img src={logoImg} alt="Byte" className="h-14 w-14 rounded-full object-cover" />
           </div>
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <span

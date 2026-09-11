@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Heart, Menu, X } from "lucide-react";
 import { useState } from "react";
 
-import { Emblem } from "./Emblem";
+import logoImg from "@/assets/logo.png";
 import { playerConfig } from "@/config/player";
 
 const links = [
@@ -22,9 +22,7 @@ export function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-xl">
       <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 sm:px-6 lg:flex lg:justify-between">
         <Link to="/" className="flex min-w-0 items-center gap-2.5" onClick={() => setOpen(false)}>
-          <span className="text-primary">
-            <Emblem className="h-7 w-7" />
-          </span>
+          <img src={logoImg} alt="Byte" className="h-8 w-8 rounded-full object-cover" />
           <span className="text-display truncate text-xl font-bold tracking-widest">
             {playerConfig.handle.toUpperCase()}
           </span>

@@ -1,5 +1,6 @@
 import { Crown, Globe, Timer } from "lucide-react";
 
+import logoImg from "@/assets/logo.png";
 import { playerConfig } from "@/config/player";
 
 function RankBadge() {
@@ -19,14 +20,28 @@ export function ProfileCard() {
     <div className="panel grain relative p-5 sm:p-6">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
 
-      <div className="flex items-center gap-3">
-        <RankBadge />
-        <div className="min-w-0">
-          <div className="label-hud flex items-center gap-1.5">
-            <Crown className="h-3 w-3" /> Peak Rank
+      <div className="flex flex-col items-center sm:flex-row sm:items-start">
+        <div className="relative mb-4 sm:mb-0 sm:mr-4">
+          <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl" />
+          <img
+            src={logoImg}
+            alt={playerConfig.handle}
+            className="relative h-16 w-16 rounded-full border-2 border-primary/50 object-cover shadow-lg"
+          />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="text-display text-lg font-bold">{playerConfig.handle}</div>
+          <div className="text-xs text-muted-foreground">{playerConfig.riotId}</div>
+
+          <div className="mt-3 space-y-2 text-sm">
+            <div className="flex items-center gap-1.5">
+              <Crown className="h-3 w-3 text-primary" />
+              <span className="label-hud">Peak Rank</span>
+            </div>
+            <div className="text-display font-bold">{playerConfig.peakRank.name}</div>
+            <div className="text-xs text-muted-foreground">{playerConfig.peakRank.detail}</div>
           </div>
-          <div className="text-display text-lg font-bold">{playerConfig.peakRank.name}</div>
-          <div className="text-xs text-muted-foreground">{playerConfig.peakRank.detail}</div>
         </div>
       </div>
 

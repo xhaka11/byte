@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import logoImg from "@/assets/logo.png";
 import { Reveal } from "@/components/site/Reveal";
 import { SupportCard } from "@/components/site/SupportCard";
 import { playerConfig } from "@/config/player";
@@ -23,9 +24,22 @@ export const Route = createFileRoute("/about")({
 function AboutPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 pt-32 sm:px-6">
-      <header className="mb-12">
-        <span className="label-hud text-primary">Who Am I</span>
-        <h1 className="text-display mt-3 text-5xl font-extrabold sm:text-6xl">About</h1>
+      <header className="mb-12 flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left">
+        <div className="relative mb-6 sm:mb-0 sm:mr-6">
+          <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl" />
+          <img
+            src={logoImg}
+            alt="Byte"
+            className="relative h-24 w-24 rounded-full border-2 border-primary/50 object-cover shadow-lg sm:h-28 sm:w-28"
+          />
+        </div>
+        <div>
+          <span className="label-hud text-primary">Who Am I</span>
+          <h1 className="text-display mt-2 text-5xl font-extrabold sm:text-6xl">About</h1>
+          <p className="mt-2 max-w-md text-sm text-muted-foreground">
+            {playerConfig.region} — {playerConfig.playstyle}
+          </p>
+        </div>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
