@@ -3,7 +3,7 @@
  * Get your free API key at: https://api.henrikdev.xyz/dashboard/
  */
 export const henrikConfig = {
-  apiKey: "", // <-- Paste your Henrik API key here
+  apiKey: "HDEV-a9cdde48-db96-48a4-ab33-2638017b993f",
   baseUrl: "https://api.henrikdev.xyz",
 
   /** Player Riot ID */
