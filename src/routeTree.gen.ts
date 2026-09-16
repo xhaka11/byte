@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as DonateAlertRouteImport } from './routes/donate-alert'
 import { Route as MatchHistoryRouteImport } from './routes/match-history'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as SupportRouteImport } from './routes/support'
-import { Route as DonateAlertRouteImport } from './routes/donate-alert'
+import { Route as ApiMatchesRouteImport } from './routes/api/matches'
+import { Route as ApiMmrRouteImport } from './routes/api/mmr'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -26,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonateAlertRoute = DonateAlertRouteImport.update({
+  id: '/donate-alert',
+  path: '/donate-alert',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatchHistoryRoute = MatchHistoryRouteImport.update({
@@ -53,85 +60,104 @@ const SupportRoute = SupportRouteImport.update({
   path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DonateAlertRoute = DonateAlertRouteImport.update({
-  id: '/donate-alert',
-  path: '/donate-alert',
+const ApiMatchesRoute = ApiMatchesRouteImport.update({
+  id: '/api/matches',
+  path: '/api/matches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMmrRoute = ApiMmrRouteImport.update({
+  id: '/api/mmr',
+  path: '/api/mmr',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/donate-alert': typeof DonateAlertRoute
   '/match-history': typeof MatchHistoryRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/support': typeof SupportRoute
-  '/donate-alert': typeof DonateAlertRoute
+  '/api/matches': typeof ApiMatchesRoute
+  '/api/mmr': typeof ApiMmrRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/donate-alert': typeof DonateAlertRoute
   '/match-history': typeof MatchHistoryRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/support': typeof SupportRoute
-  '/donate-alert': typeof DonateAlertRoute
+  '/api/matches': typeof ApiMatchesRoute
+  '/api/mmr': typeof ApiMmrRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/donate-alert': typeof DonateAlertRoute
   '/match-history': typeof MatchHistoryRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/support': typeof SupportRoute
-  '/donate-alert': typeof DonateAlertRoute
+  '/api/matches': typeof ApiMatchesRoute
+  '/api/mmr': typeof ApiMmrRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/donate-alert'
     | '/match-history'
     | '/profile'
     | '/settings'
     | '/setup'
     | '/support'
-    | '/donate-alert'
+    | '/api/matches'
+    | '/api/mmr'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/donate-alert'
     | '/match-history'
     | '/profile'
     | '/settings'
     | '/setup'
     | '/support'
-    | '/donate-alert'
+    | '/api/matches'
+    | '/api/mmr'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/donate-alert'
     | '/match-history'
     | '/profile'
     | '/settings'
     | '/setup'
     | '/support'
-    | '/donate-alert'
+    | '/api/matches'
+    | '/api/mmr'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  DonateAlertRoute: typeof DonateAlertRoute
   MatchHistoryRoute: typeof MatchHistoryRoute
   ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
   SetupRoute: typeof SetupRoute
   SupportRoute: typeof SupportRoute
-  DonateAlertRoute: typeof DonateAlertRoute
+  ApiMatchesRoute: typeof ApiMatchesRoute
+  ApiMmrRoute: typeof ApiMmrRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -148,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donate-alert': {
+      id: '/donate-alert'
+      path: '/donate-alert'
+      fullPath: '/donate-alert'
+      preLoaderRoute: typeof DonateAlertRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/match-history': {
@@ -185,11 +218,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/donate-alert': {
-      id: '/donate-alert'
-      path: '/donate-alert'
-      fullPath: '/donate-alert'
-      preLoaderRoute: typeof DonateAlertRouteImport
+    '/api/matches': {
+      id: '/api/matches'
+      path: '/api/matches'
+      fullPath: '/api/matches'
+      preLoaderRoute: typeof ApiMatchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mmr': {
+      id: '/api/mmr'
+      path: '/api/mmr'
+      fullPath: '/api/mmr'
+      preLoaderRoute: typeof ApiMmrRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -198,12 +238,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  DonateAlertRoute: DonateAlertRoute,
   MatchHistoryRoute: MatchHistoryRoute,
   ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
   SetupRoute: SetupRoute,
   SupportRoute: SupportRoute,
-  DonateAlertRoute: DonateAlertRoute,
+  ApiMatchesRoute: ApiMatchesRoute,
+  ApiMmrRoute: ApiMmrRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

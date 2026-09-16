@@ -1,69 +1,99 @@
-import { apiConfig } from "@/config/api";
+import { henrikConfig } from "@/config/api";
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
+const headers = {
+  "Authorization": henrikConfig.apiKey,
+};
 
-export interface HenrikMatch {
-  metadata: {
-    map: string;
-    game_version: string;
-    match_id: string;
-    mode: string;
-    mode_id: string;
-    season_id: string;
-    platform: string;
-    shard: string;
-    queue: string | null;
-    is_ranked: boolean;
-  };
-  players: {
-    all_players: HenrikPlayer[];
-  };
-  teams: {
-    red: { has_won: boolean; rounds_won: number; rounds_lost: number };
-    blue: { has_won: boolean; rounds_won: number; rounds_lost: number };
+function buildUrl(path: string, params?: Record<string, string | number>) {
+  const url = new URL(path, henrikConfig.baseUrl);
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, String(v));
+    }
+  }
+  return url.toString();
+}
+
+async function henrikFetch<T>(path: string, params?: Record<string, string | number>): Promise<T> {
+  const res = await fetch(buildUrl(path, params), { headers });
+  if (!res.ok) throw new Error(`Henrik API error: ${res.status}`);
+  return res.json();
+}
+
+// ─── Types ───────────────────────────────────────────
+
+export interface MMRData {
+  status: number;
+  data: {
+    account: { name: string; tag: string; puuid: string };
+    current: {
+      tier: { id: number; name: string };
+      rr: number;
+      last_change: number;
+      elo: number;
+    };
+    peak: {
+      tier: { id: number; name: string };
+      rr: number;
+      season: { id: string; short: string };
+    } | null;
+    seasonal: Array<{
+      season: { id: string; short: string };
+      wins: number;
+      games: number;
+      end_tier: { id: number; name: string };
+      end_rr: number;
+    }>;
   };
 }
 
-export interface HenrikPlayer {
-  puuid: string;
-  name: string;
-  tag: string;
-  team: string;
-  level: number;
-  character: string;
-  tier: number;
-  stats: {
-    score: number;
-    kills: number;
-    deaths: number;
-    assists: number;
-    bodyshots: number;
-    headshots: number;
-    legshots: number;
-    damage_dealt: number;
-    kills_near_enemy: number;
-    grenade_damage: number;
-    ability1_damage: number;
-    ability2_damage: number;
-    ult_damage: number;
-  };
-  assets: {
-    card: { small: string; large: string; wide: string };
-    agent: { small: string; full: string; bust: string; killfeed: string };
-  };
-  economy: {
-    spent: { overall: number; average: number };
-    loadout_value: { overall: number; average: number };
-  };
-  ability_casts: {
-    grenade: number;
-    ability1: number;
-    ability2: number;
-    ultimate: number;
-  };
+export interface MatchData {
+  status: number;
+  data: Array<{
+    metadata: {
+      match_id: string;
+      map: { id: string; name: string };
+      started_at: string;
+      game_length_in_ms: number;
+      queue: { id: string; name: string | null };
+    };
+    players: Array<{
+      puuid: string;
+      name: string;
+      tag: string;
+      agent: { id: string; name: string };
+      stats: {
+        score: number;
+        kills: number;
+        deaths: number;
+        assists: number;
+        headshots: number;
+        bodyshots: number;
+        legshots: number;
+      };
+      team_id: string;
+    }>;
+    teams: Array<{
+      team_id: string;
+      won: boolean;
+      rounds: { won: number; lost: number };
+    }>;
+  }>;
 }
+
+// ─── API Functions ───────────────────────────────────
+
+export async function getMMR() {
+  const { name, tag, region, platform } = henrikConfig;
+  return henrikFetch<MMRData>(`/valorant/v3/mmr/${region}/${platform}/${name}/${tag}`);
+}
+
+export async function getMatches(size = 10) {
+  const { name, tag, region, platform } = henrikConfig;
+  return henrikFetch<MatchData>(`/valorant/v4/matches/${region}/${platform}/${name}/${tag}`, { size });
+}
+
+// ─── MatchCardData (for useMatches hook) ─────────────
 
 export interface MatchCardData {
   map: string;
@@ -78,73 +108,46 @@ export interface MatchCardData {
   date: string;
 }
 
-/* ------------------------------------------------------------------ */
-/*  API Functions                                                      */
-/* ------------------------------------------------------------------ */
+export async function fetchRecentMatches(count = 8): Promise<MatchCardData[]> {
+  if (!henrikConfig.apiKey) return [];
 
-/**
- * Fetch recent matches from Henrik.dev API
- * Docs: https://docs.henrikdev.xyz/valorant/api-reference/matchlist
- */
-export async function fetchRecentMatches(
-  size = 10,
-): Promise<MatchCardData[]> {
-  const { baseUrl, apiKey, player } = apiConfig;
+  try {
+    const res = await getMatches(count);
+    if (res.status !== 200 || !res.data) return [];
 
-  if (!apiKey) {
-    console.warn("HENRIK_API_KEY not set — falling back to static data");
+    return res.data.map((match) => {
+      const player = match.players.find(
+        (p) => p.name.toLowerCase() === henrikConfig.name.toLowerCase() && p.tag.toLowerCase() === henrikConfig.tag.toLowerCase(),
+      );
+      if (!player) return null;
+
+      const team = match.teams.find((t) => t.team_id === player.team_id);
+      const won = team?.won ?? false;
+      const roundsWon = team?.rounds.won ?? 0;
+      const roundsLost = team?.rounds.lost ?? 0;
+
+      const totalShots = player.stats.headshots + player.stats.bodyshots + player.stats.legshots;
+      const hsPercent = totalShots > 0 ? ((player.stats.headshots / totalShots) * 100).toFixed(0) : "0";
+      const kdRatio = player.stats.deaths > 0 ? (player.stats.kills / player.stats.deaths).toFixed(2) : player.stats.kills.toFixed(2);
+      const acs = Math.round(player.stats.score / Math.max(1, (match.metadata.game_length_in_ms / 60000)));
+
+      const date = new Date(match.metadata.started_at);
+      const dateStr = `${String(date.getDate()).padStart(2, "0")} ${date.toLocaleString("en", { month: "short" })}`;
+
+      return {
+        map: match.metadata.map.name,
+        result: won ? "victory" : "defeat",
+        score: `${roundsWon} - ${roundsLost}`,
+        kda: `${player.stats.kills} / ${player.stats.deaths} / ${player.stats.assists}`,
+        kd: kdRatio,
+        hs: `${hsPercent}%`,
+        acs: String(acs),
+        agent: player.agent.name,
+        mode: match.metadata.queue.name ?? "Unknown",
+        date: dateStr,
+      };
+    }).filter(Boolean) as MatchCardData[];
+  } catch {
     return [];
   }
-
-  const url = `${baseUrl}/valorant/v3/matches/${player.region}/${player.name}/${player.tag}?size=${size}`;
-
-  const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: apiKey,
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`API error ${res.status}: ${await res.text()}`);
-  }
-
-  const json = await res.json();
-  const matches: HenrikMatch[] = json.data ?? [];
-
-  return matches.map((match) => {
-    const { name, tag } = apiConfig.player;
-    const playerData = match.players.all_players.find(
-      (p) => p.name.toLowerCase() === name.toLowerCase() && p.tag.toLowerCase() === tag.toLowerCase(),
-    );
-
-    if (!playerData) {
-      throw new Error(`Player ${name}#${tag} not found in match ${match.metadata.match_id}`);
-    }
-
-    const { stats } = playerData;
-    const kd = stats.deaths === 0 ? stats.kills.toFixed(2) : (stats.kills / stats.deaths).toFixed(2);
-    const totalShots = stats.headshots + stats.bodyshots + stats.legshots;
-    const hsPercent = totalShots === 0 ? 0 : Math.round((stats.headshots / totalShots) * 100);
-    const acs = Math.round(stats.score / Math.max(1, match.metadata.mode === "Deathmatch" ? 1 : 12));
-
-    const teamWins = playerData.team === "Red" ? match.teams.red.has_won : match.teams.blue.has_won;
-
-    // Calculate date from match metadata (approximate)
-    const now = new Date();
-    const dateStr = `${String(now.getDate()).padStart(2, "0")} ${now.toLocaleString("en-US", { month: "short" })}`;
-
-    return {
-      map: match.metadata.map,
-      result: teamWins ? "victory" : "defeat",
-      score: `${match.teams.red.rounds_won} - ${match.teams.blue.rounds_lost}`,
-      kda: `${stats.kills} / ${stats.deaths} / ${stats.assists}`,
-      kd,
-      hs: `${hsPercent}%`,
-      acs: String(acs),
-      agent: playerData.character,
-      mode: match.metadata.queue ?? match.metadata.mode,
-      date: dateStr,
-    } satisfies MatchCardData;
-  });
 }
