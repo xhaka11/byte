@@ -8,9 +8,9 @@ import { playerConfig } from "@/config/player";
 const links = [
   { label: "Home", to: "/" },
   { label: "Profile", to: "/profile" },
+  { label: "Tracker", to: "/tracker" },
   { label: "Settings", to: "/settings" },
   { label: "Setup", to: "/setup" },
-  { label: "Match History", to: "/match-history" },
   { label: "About", to: "/about" },
   { label: "Support", to: "/support" },
 ] as const;

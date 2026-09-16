@@ -17,6 +17,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as TrackerRouteImport } from './routes/tracker'
 import { Route as ApiMatchesRouteImport } from './routes/api/matches'
 import { Route as ApiMmrRouteImport } from './routes/api/mmr'
 
@@ -60,6 +61,11 @@ const SupportRoute = SupportRouteImport.update({
   path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrackerRoute = TrackerRouteImport.update({
+  id: '/tracker',
+  path: '/tracker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMatchesRoute = ApiMatchesRouteImport.update({
   id: '/api/matches',
   path: '/api/matches',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/support': typeof SupportRoute
+  '/tracker': typeof TrackerRoute
   '/api/matches': typeof ApiMatchesRoute
   '/api/mmr': typeof ApiMmrRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/support': typeof SupportRoute
+  '/tracker': typeof TrackerRoute
   '/api/matches': typeof ApiMatchesRoute
   '/api/mmr': typeof ApiMmrRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/setup': typeof SetupRoute
   '/support': typeof SupportRoute
+  '/tracker': typeof TrackerRoute
   '/api/matches': typeof ApiMatchesRoute
   '/api/mmr': typeof ApiMmrRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/support'
+    | '/tracker'
     | '/api/matches'
     | '/api/mmr'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/support'
+    | '/tracker'
     | '/api/matches'
     | '/api/mmr'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/setup'
     | '/support'
+    | '/tracker'
     | '/api/matches'
     | '/api/mmr'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SetupRoute: typeof SetupRoute
   SupportRoute: typeof SupportRoute
+  TrackerRoute: typeof TrackerRoute
   ApiMatchesRoute: typeof ApiMatchesRoute
   ApiMmrRoute: typeof ApiMmrRoute
 }
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tracker': {
+      id: '/tracker'
+      path: '/tracker'
+      fullPath: '/tracker'
+      preLoaderRoute: typeof TrackerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/matches': {
       id: '/api/matches'
       path: '/api/matches'
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SetupRoute: SetupRoute,
   SupportRoute: SupportRoute,
+  TrackerRoute: TrackerRoute,
   ApiMatchesRoute: ApiMatchesRoute,
   ApiMmrRoute: ApiMmrRoute,
 }
