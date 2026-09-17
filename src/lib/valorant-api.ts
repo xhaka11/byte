@@ -89,8 +89,15 @@ export async function getMMR() {
 }
 
 export async function getMatches(size = 10) {
-  const { name, tag, region, platform } = henrikConfig;
+  return getMatchesByName(henrikConfig.name, henrikConfig.tag, henrikConfig.region, henrikConfig.platform, size);
+}
+
+export async function getMatchesByName(name: string, tag: string, region: string, platform: string, size = 10) {
   return henrikFetch<MatchData>(`/valorant/v4/matches/${region}/${platform}/${name}/${tag}`, { size });
+}
+
+export async function getMMRByName(name: string, tag: string, region: string, platform: string) {
+  return henrikFetch<MMRData>(`/valorant/v3/mmr/${region}/${platform}/${name}/${tag}`);
 }
 
 // ─── MatchCardData (for useMatches hook) ─────────────
