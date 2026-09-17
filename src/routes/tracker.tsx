@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
-import { Search, Crosshair, Trophy, Activity, Shield, Swords, Target, Flame, ChevronDown, AlertCircle } from "lucide-react";
+import { Search, Crosshair, Trophy, Activity, Shield, Swords, Target, Flame, AlertCircle } from "lucide-react";
 
 import { Reveal } from "@/components/site/Reveal";
 import { getMMRByName, getMatchesByName, type MatchCardData } from "@/lib/valorant-api";
@@ -254,13 +254,12 @@ function TrackerPage() {
     const t = m.player.stats.headshots + m.player.stats.bodyshots + m.player.stats.legshots;
     return s + (t > 0 ? m.player.stats.headshots / t : 0);
   }, 0);
-  const totalDamage = playerMatches.reduce((s, m) => s + (m.player.stats.damage?.dealt ?? 0), 0);
   const totalScore = playerMatches.reduce((s, m) => s + m.player.stats.score, 0);
 
   const kd = totalDeaths > 0 ? (totalKills / totalDeaths).toFixed(2) : totalKills.toFixed(2);
   const hsPercent = totalGames > 0 ? ((totalHS / totalGames) * 100).toFixed(1) : "0";
   const avgACS = totalGames > 0 ? Math.round(totalScore / totalGames) : 0;
-  const avgDamage = totalGames > 0 ? Math.round(totalDamage / totalGames) : 0;
+  const avgDamage = totalGames > 0 ? Math.round(totalKills / totalGames) : 0;
   const winRate = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(1) : "0";
 
   const agentMap = new Map<string, { name: string; games: number; wins: number; kills: number; deaths: number; assists: number }>();
@@ -418,7 +417,7 @@ function TrackerPage() {
                 <StatCard icon={Activity} label="Avg ACS" value={String(avgACS)} />
               </Reveal>
               <Reveal delay={0.22}>
-                <StatCard icon={Flame} label="Avg Damage" value={String(avgDamage)} />
+                <StatCard icon={Flame} label="Avg Kills" value={String(avgDamage)} />
               </Reveal>
               <Reveal delay={0.26}>
                 <StatCard icon={Swords} label="Matches" value={`${wins}W ${losses}L`} />
