@@ -11,7 +11,7 @@ export const Route = createFileRoute("/match-history")({
       {
         name: "description",
         content:
-          "Recent Valorant matches for Byte with map, score, agent, K/D/A, headshot percentage and ACS, filterable by result and mode.",
+          "Recent Valorant matches for Byte with map, score, agent, K/D/A, headshot percentage and ACS, filterable by result.",
       },
       { property: "og:title", content: "Byte - Game" },
       { property: "og:description", content: "Filterable recent Valorant match results." },
@@ -20,17 +20,16 @@ export const Route = createFileRoute("/match-history")({
   component: MatchHistoryPage,
 });
 
-const filters = ["All", "Victory", "Defeat", "Ranked", "Unrated"] as const;
+const filters = ["All", "Victory", "Defeat"] as const;
 type Filter = (typeof filters)[number];
 
 function MatchHistoryPage() {
   const [filter, setFilter] = useState<Filter>("All");
-  const { matches: allMatches, isLoading, source } = useMatches(20);
+  const { matches: allMatches, isLoading, error } = useMatches(20);
 
   const matches = allMatches.filter((m) => {
     if (filter === "All") return true;
-    if (filter === "Victory" || filter === "Defeat") return m.result === filter.toLowerCase();
-    return m.mode === filter;
+    return m.result === filter.toLowerCase();
   });
 
   return (
@@ -38,43 +37,58 @@ function MatchHistoryPage() {
       <header className="mb-10">
         <span className="label-hud text-primary">Performance Log</span>
         <h1 className="text-display mt-3 text-5xl font-extrabold sm:text-6xl">Match History</h1>
-        <p className="mt-2 text-xs text-muted-foreground">
-          {source === "api" ? "● Live from Henrik.dev" : "● Static data"}
-          {isLoading && " — refreshing..."}
-        </p>
       </header>
 
-      <div className="mb-8 flex flex-wrap gap-2">
-        {filters.map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setFilter(f)}
-            className={`clip-tag border px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] transition-all ${
-              filter === f
-                ? "border-primary bg-primary/15 text-primary shadow-glow"
-                : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      <div key={filter} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {matches.map((m, i) => (
-          <div
-            key={`${m.map}-${m.date}-${i}`}
-            className="animate-fade-in"
-            style={{ animationDelay: `${i * 0.05}s`, animationFillMode: "backwards" }}
-          >
-            <MatchCard match={m} detailed />
+      {isLoading && (
+        <div className="flex h-64 items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <p className="text-sm text-muted-foreground">Loading match history...</p>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
-      {matches.length === 0 && (
-        <p className="py-16 text-center text-sm text-muted-foreground">No matches in this filter.</p>
+      {error && (
+        <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
+          <p className="text-sm text-red-300">{error}</p>
+        </div>
+      )}
+
+      {!isLoading && !error && (
+        <>
+          <div className="mb-8 flex flex-wrap gap-2">
+            {filters.map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setFilter(f)}
+                className={`clip-tag border px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] transition-all ${
+                  filter === f
+                    ? "border-primary bg-primary/15 text-primary shadow-glow"
+                    : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+
+          <div key={filter} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {matches.map((m, i) => (
+              <div
+                key={`${m.map}-${m.date}-${i}`}
+                className="animate-fade-in"
+                style={{ animationDelay: `${i * 0.05}s`, animationFillMode: "backwards" }}
+              >
+                <MatchCard match={m} detailed />
+              </div>
+            ))}
+          </div>
+
+          {matches.length === 0 && (
+            <p className="py-16 text-center text-sm text-muted-foreground">No matches found.</p>
+          )}
+        </>
       )}
     </div>
   );

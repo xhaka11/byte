@@ -11,7 +11,7 @@ export const Route = createFileRoute("/setup")({
       {
         name: "description",
         content:
-          "Every piece of gear Byte competes on: IGNIX F3 Pro mouse, Furycube M68 HE keyboard, Lenovo Legion 5 laptop and full specs.",
+          "Every piece of gear Byte competes on: Rexus Vonix ME-6 headset, IGNIX F3 Pro mouse, Furycube M68 HE keyboard, Lenovo Legion 5 laptop and full specs.",
       },
       { property: "og:title", content: "Byte - Game" },
       { property: "og:description", content: "Mouse, keyboard, display and laptop specs." },
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/setup")({
 const entries = [
   { category: "Mouse", ...playerConfig.setup.mouse },
   { category: "Keyboard", ...playerConfig.setup.keyboard },
+  { category: "Headset", ...playerConfig.setup.headset },
   { category: "Display", ...playerConfig.setup.monitor },
   { category: "Laptop", ...playerConfig.setup.pc },
 ];

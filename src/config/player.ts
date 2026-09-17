@@ -35,8 +35,8 @@ export const playerConfig = {
 
   sensitivity: {
     dpi: "1400",
-    inGame: "0.3",
-    edpi: "420",
+    inGame: "0.25",
+    edpi: "350",
     scoped: "0.6",
     ads: "0.6",
     pollingRate: "1000",
@@ -135,6 +135,18 @@ export const playerConfig = {
         { label: "Storage", value: "512 GB NVMe" },
         { label: "WiFi", value: "WiFi 6 + BT 5.2" },
         { label: "Weight", value: "2.4 kg" },
+      ],
+    },
+    headset: {
+      name: "Rexus Vonix ME-6",
+      image: mouseImg,
+      specs: [
+        { label: "Driver", value: "50mm" },
+        { label: "Connection", value: "Wired USB" },
+      ],
+      extra: [
+        { label: "Cable", value: "Braided" },
+        { label: "Mic", value: "Retractable" },
       ],
     },
   },
