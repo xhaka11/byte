@@ -1,4 +1,4 @@
-import { Flame } from "lucide-react";
+import { AgentImage } from "./AgentImage";
 
 /** Generic match shape — works with both static config and live API data */
 interface MatchLike {
@@ -24,9 +24,7 @@ export function MatchCard({ match, detailed = false }: { match: MatchLike; detai
         style={{ background: win ? "var(--victory)" : "var(--defeat)" }}
       />
       <div className="flex items-center gap-3">
-        <span className="clip-tag grid h-9 w-9 shrink-0 place-items-center border border-primary/30 text-primary">
-          <Flame className="h-4 w-4" />
-        </span>
+        <AgentImage name={match.agent} size="sm" />
         <div className="min-w-0">
           <div
             className="text-display text-xs font-bold tracking-[0.18em]"

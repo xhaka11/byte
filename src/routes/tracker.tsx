@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
-import { Search, Crosshair, Trophy, Activity, Shield, Swords, Target, Flame, AlertCircle } from "lucide-react";
+import { Search, Crosshair, Trophy, Activity, Swords, Target, Flame, AlertCircle } from "lucide-react";
 
 import { Reveal } from "@/components/site/Reveal";
+import { AgentImage } from "@/components/site/AgentImage";
 import { getMMRByName, getMatchesByName, type MatchCardData } from "@/lib/valorant-api";
 
 export const Route = createFileRoute("/tracker")({
@@ -451,6 +452,7 @@ function TrackerPage() {
                           <div className="text-xs text-muted-foreground">{rounds}</div>
                         </div>
                         <div className="flex items-center gap-3 sm:w-40">
+                          <AgentImage name={p.agent.name} size="sm" />
                           <div className="text-sm font-bold">{p.agent.name}</div>
                           <div className="text-xs text-muted-foreground">{m.metadata.map.name}</div>
                         </div>
@@ -498,7 +500,7 @@ function TrackerPage() {
                       <div className="panel grain p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <Shield className="h-4 w-4 text-primary" />
+                            <AgentImage name={a.name} size="sm" />
                             <div>
                               <div className="text-display text-sm font-bold">{a.name}</div>
                               <div className="text-xs text-muted-foreground">{a.games} games</div>
