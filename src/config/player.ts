@@ -1,5 +1,6 @@
 import mouseImg from "@/assets/gear-mouse.png";
 import keyboardImg from "@/assets/gear-keyboard.png";
+import headsetImg from "@/assets/gear-headset.png";
 import monitorImg from "@/assets/gear-monitor.png";
 import pcImg from "@/assets/gear-pc.png";
 
@@ -139,7 +140,7 @@ export const playerConfig = {
     },
     headset: {
       name: "Rexus Vonix ME-6",
-      image: mouseImg,
+      image: headsetImg,
       specs: [
         { label: "Driver", value: "50mm" },
         { label: "Connection", value: "Wired USB" },
