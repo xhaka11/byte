@@ -5,6 +5,7 @@ import { Search, Crosshair, Trophy, Activity, Swords, Target, Flame, AlertCircle
 import { Reveal } from "@/components/site/Reveal";
 import { AgentImage } from "@/components/site/AgentImage";
 import { getMMRByName, getMatchesByName, type MatchCardData } from "@/lib/valorant-api";
+import { getRankIcon } from "@/lib/ranks";
 import { playerConfig } from "@/config/player";
 
 export const Route = createFileRoute("/tracker")({
@@ -78,25 +79,6 @@ interface MatchResponse {
   }>;
 }
 
-const RANK_GRADIENT: Record<number, string> = {
-  3: "from-amber-700/80 to-amber-900/80",
-  4: "from-amber-700/80 to-amber-900/80",
-  5: "from-stone-400/80 to-stone-600/80",
-  6: "from-slate-300/80 to-slate-500/80",
-  7: "from-slate-300/80 to-slate-500/80",
-  8: "from-yellow-500/80 to-yellow-700/80",
-  9: "from-orange-400/80 to-orange-600/80",
-  10: "from-cyan-400/80 to-cyan-600/80",
-  11: "from-blue-400/80 to-blue-600/80",
-  12: "from-violet-400/80 to-violet-600/80",
-  13: "from-purple-400/80 to-purple-600/80",
-  14: "from-emerald-400/80 to-emerald-600/80",
-  15: "from-pink-500/80 to-rose-600/80",
-  16: "from-pink-400/80 to-rose-500/80",
-  17: "from-red-400/80 to-red-600/80",
-  18: "from-yellow-300/80 to-amber-500/80",
-};
-
 const RANK_LABEL: Record<number, string> = {
   3: "Bronze III", 4: "Bronze II", 5: "Bronze I",
   6: "Silver II", 7: "Silver I",
@@ -109,10 +91,11 @@ const RANK_LABEL: Record<number, string> = {
 };
 
 function RankBadge({ tierId, showName = true }: { tierId: number; showName?: boolean }) {
-  const gradient = RANK_GRADIENT[tierId] ?? "from-gray-500/80 to-gray-700/80";
+  const icon = getRankIcon(tierId);
   const label = RANK_LABEL[tierId] ?? `Tier ${tierId}`;
   return (
-    <div className={`inline-flex items-center gap-2 rounded-md bg-gradient-to-r ${gradient} border border-white/10 px-3 py-1.5`}>
+    <div className="inline-flex items-center gap-2.5 rounded-md bg-gradient-to-r from-white/5 to-white/[0.02] border border-white/10 px-3 py-1.5">
+      <img src={icon} alt={label} width={28} height={28} className="shrink-0" />
       {showName && <span className="text-xs font-bold tracking-wider text-white/90">{label}</span>}
     </div>
   );
