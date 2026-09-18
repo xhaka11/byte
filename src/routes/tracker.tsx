@@ -79,25 +79,10 @@ interface MatchResponse {
   }>;
 }
 
-const RANK_LABEL: Record<number, string> = {
-  3: "Bronze III", 4: "Bronze II", 5: "Bronze I",
-  6: "Silver II", 7: "Silver I",
-  8: "Gold II", 9: "Gold I",
-  10: "Platinum II", 11: "Platinum I",
-  12: "Diamond II", 13: "Diamond I",
-  14: "Ascendant",
-  15: "Immortal I", 16: "Immortal II", 17: "Immortal III",
-  18: "Radiant",
-};
-
-function RankBadge({ tierId, showName = true }: { tierId: number; showName?: boolean }) {
+function RankBadge({ tierId }: { tierId: number }) {
   const icon = getRankIcon(tierId);
-  const label = RANK_LABEL[tierId] ?? `Tier ${tierId}`;
   return (
-    <div className="inline-flex items-center gap-2.5 rounded-md bg-gradient-to-r from-white/5 to-white/[0.02] border border-white/10 px-3 py-1.5">
-      <img src={icon} alt={label} width={28} height={28} className="shrink-0" />
-      {showName && <span className="text-xs font-bold tracking-wider text-white/90">{label}</span>}
-    </div>
+    <img src={icon} alt="rank" width={28} height={28} className="shrink-0" />
   );
 }
 
@@ -392,24 +377,10 @@ function TrackerPage() {
         <>
           <Reveal>
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-4">
-                <RankBadge tierId={mmr.data.current.tier.id} />
-                <div>
-                  <div className="text-display text-3xl font-bold">{mmr.data.current.tier.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {mmr.data.current.rr} RR
-                    {mmr.data.current.last_change !== 0 && (
-                      <span className={mmr.data.current.last_change > 0 ? "ml-2 text-green-400" : "ml-2 text-red-400"}>
-                        {mmr.data.current.last_change > 0 ? "+" : ""}{mmr.data.current.last_change}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
               {mmr.data.peak && (
                 <Reveal delay={0.08}>
                   <div className="mt-3 flex items-center gap-3">
-                    <RankBadge tierId={mmr.data.peak.tier.id} showName={false} />
+                    <RankBadge tierId={mmr.data.peak.tier.id} />
                     <div>
                       <span className="label-hud text-muted-foreground">Peak Rank</span>
                       <div className="text-sm font-bold">{mmr.data.peak.tier.name}</div>
