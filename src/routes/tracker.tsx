@@ -140,8 +140,10 @@ function MatchDetail({ match, playerName, playerTag, onClose }: MatchDetailProps
   );
   if (!player) return null;
 
-  const teammates = match.players.filter((p) => p.team_id === player.team_id);
-  const opponents = match.players.filter((p) => p.team_id !== player.team_id);
+  const teammates = [...match.players.filter((p) => p.team_id === player.team_id)]
+    .sort((a, b) => b.stats.score - a.stats.score);
+  const opponents = [...match.players.filter((p) => p.team_id !== player.team_id)]
+    .sort((a, b) => b.stats.score - a.stats.score);
   const team = match.teams.find((t) => t.team_id === player.team_id);
   const won = team?.won ?? false;
 
@@ -168,8 +170,9 @@ function MatchDetail({ match, playerName, playerTag, onClose }: MatchDetailProps
             <span className={`text-xs ${won ? "text-green-400" : "text-red-400"}`}>{team?.rounds.won ?? 0} - {team?.rounds.lost ?? 0}</span>
           </div>
           <div className="space-y-1">
-            {teammates.map((p) => (
+            {teammates.map((p, idx) => (
               <div key={p.puuid} className={`flex items-center gap-2 rounded px-2 py-1.5 ${p.name === playerName ? "bg-primary/10" : "bg-background/50"}`}>
+                {idx === 0 && <span className="text-[0.6rem] font-bold text-yellow-400">MVP</span>}
                 <AgentImage name={p.agent.name} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className={`truncate text-xs font-bold ${p.name === playerName ? "text-primary" : "text-foreground"}`}>
@@ -186,8 +189,9 @@ function MatchDetail({ match, playerName, playerTag, onClose }: MatchDetailProps
         <div>
           <div className="mb-2 label-hud text-xs">Opponent</div>
           <div className="space-y-1">
-            {opponents.map((p) => (
+            {opponents.map((p, idx) => (
               <div key={p.puuid} className="flex items-center gap-2 rounded px-2 py-1.5 bg-background/50">
+                {idx === 0 && <span className="text-[0.6rem] font-bold text-orange-400">MVP</span>}
                 <AgentImage name={p.agent.name} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-xs font-bold text-foreground">{p.name} <span className="text-muted-foreground">#{p.tag}</span></div>
@@ -421,17 +425,11 @@ function TrackerPage() {
             </div>
           </Reveal>
 
-          {mmr.data.peak && (
-            <Reveal delay={0.05}>
-              <div className="mb-6 flex items-center gap-3 rounded-lg border border-border/50 bg-background/50 px-4 py-3">
-                <Trophy className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm text-muted-foreground">Peak:</span>
-                <RankBadge tierId={mmr.data.peak.tier.id} />
-                <span className="text-sm text-muted-foreground">{mmr.data.peak.rr} RR</span>
-                <span className="text-xs text-muted-foreground">({mmr.data.peak.season.short})</span>
-              </div>
-            </Reveal>
-          )}
+          <Reveal delay={0.05}>
+            <div className="mb-6 flex items-center gap-2 rounded-lg border border-border/30 bg-background/30 px-4 py-2">
+              <span className="text-[0.65rem] text-muted-foreground">Data from Henrik API · may not be 100% accurate</span>
+            </div>
+          </Reveal>
 
           <section className="mb-8">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
