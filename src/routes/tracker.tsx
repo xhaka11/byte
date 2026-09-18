@@ -254,14 +254,17 @@ function TrackerPage() {
           getMatchesByName(n, t, region, "pc", 12),
         ]);
 
-        if (mmrRes.status === 404 || matchRes.status === 404) {
+        const mmrOk = mmrRes.status === 200;
+        const matchOk = matchRes.status === 200;
+
+        if (!mmrOk && !matchOk) {
           setNotFound(true);
           setLoading(false);
           return;
         }
 
-        if (mmrRes.status === 200 && mmrRes.data) setMmr(mmrRes);
-        if (matchRes.status === 200) {
+        if (mmrOk && mmrRes.data) setMmr(mmrRes);
+        if (matchOk) {
           setMatches(matchRes.data ?? []);
         }
       } catch (e) {
