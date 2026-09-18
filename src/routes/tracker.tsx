@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
-import { Search, Crosshair, Trophy, Activity, Swords, Target, Flame, AlertCircle } from "lucide-react";
+import { Search, Crosshair, Trophy, Activity, Swords, Target, Flame, AlertCircle, ChevronDown, ChevronUp, X } from "lucide-react";
 
 import { Reveal } from "@/components/site/Reveal";
 import { AgentImage } from "@/components/site/AgentImage";
@@ -16,8 +16,6 @@ export const Route = createFileRoute("/tracker")({
   }),
   component: TrackerPage,
 });
-
-// ─── Types ───────────────────────────────────
 
 interface MMRResponse {
   status: number;
@@ -79,60 +77,131 @@ interface MatchResponse {
   }>;
 }
 
-// ─── Rank Colors ───────────────────────────────
-
-const RANK_COLORS: Record<number, string> = {
-  3: "#cd7f32",
-  4: "#cd7f32",
-  5: "#e8d5b7",
-  6: "#5ce1e6",
-  7: "#5ce1e6",
-  8: "#e84057",
-  9: "#ff6b6b",
-  10: "#ff4757",
-  11: "#ffd700",
+const RANK_GRADIENT: Record<number, string> = {
+  3: "from-amber-700/80 to-amber-900/80",
+  4: "from-amber-700/80 to-amber-900/80",
+  5: "from-stone-400/80 to-stone-600/80",
+  6: "from-slate-300/80 to-slate-500/80",
+  7: "from-slate-300/80 to-slate-500/80",
+  8: "from-yellow-500/80 to-yellow-700/80",
+  9: "from-orange-400/80 to-orange-600/80",
+  10: "from-cyan-400/80 to-cyan-600/80",
+  11: "from-blue-400/80 to-blue-600/80",
+  12: "from-violet-400/80 to-violet-600/80",
+  13: "from-purple-400/80 to-purple-600/80",
+  14: "from-emerald-400/80 to-emerald-600/80",
+  15: "from-pink-500/80 to-rose-600/80",
+  16: "from-pink-400/80 to-rose-500/80",
+  17: "from-red-400/80 to-red-600/80",
+  18: "from-yellow-300/80 to-amber-500/80",
 };
 
-function RankIcon({ tierId, size = 48 }: { tierId: number; size?: number }) {
-  const color = RANK_COLORS[tierId] ?? "#666";
-  return (
-    <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true">
-      <circle cx="24" cy="24" r="20" fill="none" stroke={color} strokeWidth="2.5" />
-      <circle cx="24" cy="24" r="15" fill={color} opacity="0.2" />
-      <circle cx="24" cy="24" r="15" fill="none" stroke={color} strokeWidth="1.5" />
-      {tierId >= 8 && <polygon points="24,8 28,18 38,18 30,24 33,34 24,28 15,34 18,24 10,18 20,18" fill={color} opacity="0.6" />}
-      {tierId >= 5 && tierId < 8 && (
-        <>
-          <rect x="18" y="14" width="12" height="3" rx="1" fill={color} opacity="0.5" />
-          <rect x="20" y="20" width="8" height="3" rx="1" fill={color} opacity="0.4" />
-          <rect x="18" y="26" width="12" height="3" rx="1" fill={color} opacity="0.3" />
-        </>
-      )}
-      {tierId < 5 && (
-        <>
-          <circle cx="24" cy="24" r="6" fill="none" stroke={color} strokeWidth="1.5" />
-          <circle cx="24" cy="24" r="2" fill={color} />
-        </>
-      )}
-    </svg>
-  );
-}
+const RANK_LABEL: Record<number, string> = {
+  3: "Bronze III", 4: "Bronze II", 5: "Bronze I",
+  6: "Silver II", 7: "Silver I",
+  8: "Gold II", 9: "Gold I",
+  10: "Platinum II", 11: "Platinum I",
+  12: "Diamond II", 13: "Diamond I",
+  14: "Ascendant",
+  15: "Immortal I", 16: "Immortal II", 17: "Immortal III",
+  18: "Radiant",
+};
 
-// ─── Stat Card ───────────────────────────────
-
-function StatCard({ icon: Icon, label, value, color = "text-foreground" }: { icon: React.ElementType; label: string; value: string; color?: string }) {
+function RankBadge({ tierId, showName = true }: { tierId: number; showName?: boolean }) {
+  const gradient = RANK_GRADIENT[tierId] ?? "from-gray-500/80 to-gray-700/80";
+  const label = RANK_LABEL[tierId] ?? `Tier ${tierId}`;
   return (
-    <div className="panel grain p-4">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Icon className="h-3.5 w-3.5" />
-        <span className="label-hud">{label}</span>
-      </div>
-      <div className={`text-display mt-1 text-2xl font-bold ${color}`}>{value}</div>
+    <div className={`inline-flex items-center gap-2 rounded-md bg-gradient-to-r ${gradient} border border-white/10 px-3 py-1.5`}>
+      {showName && <span className="text-xs font-bold tracking-wider text-white/90">{label}</span>}
     </div>
   );
 }
 
-// ─── Region Options ────────────────────────────
+function PlayerStat({ kills, deaths, assists, damage }: { kills: number; deaths: number; assists: number; damage?: { dealt: number; received: number } }) {
+  const kd = deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2);
+  return (
+    <div className="text-center">
+      <div className="text-display text-sm font-bold">{kills} / {deaths} / {assists}</div>
+      <div className="text-[0.65rem] text-muted-foreground">{kd} K/D</div>
+    </div>
+  );
+}
+
+interface MatchDetailProps {
+  match: MatchResponse["data"][0];
+  playerName: string;
+  playerTag: string;
+  onClose: () => void;
+}
+
+function MatchDetail({ match, playerName, playerTag, onClose }: MatchDetailProps) {
+  const player = match.players.find(
+    (p) => p.name.toLowerCase() === playerName.toLowerCase() && p.tag.toLowerCase() === playerTag.toLowerCase()
+  );
+  if (!player) return null;
+
+  const teammates = match.players.filter((p) => p.team_id === player.team_id);
+  const opponents = match.players.filter((p) => p.team_id !== player.team_id);
+  const team = match.teams.find((t) => t.team_id === player.team_id);
+  const won = team?.won ?? false;
+
+  const duration = Math.round(match.metadata.game_length_in_ms / 60000);
+  const date = new Date(match.metadata.started_at);
+  const dateStr = `${date.getDate()} ${date.toLocaleString("en", { month: "short" })}`;
+
+  return (
+    <div className="panel grain mt-2 overflow-hidden border-l-2 animate-in slide-in-from-top-2 duration-200" style={{ borderLeftColor: won ? "#22c55e" : "#ef4444" }}>
+      <div className="flex items-center justify-between p-3">
+        <div className="flex items-center gap-3">
+          <span className={`text-xs font-bold ${won ? "text-green-400" : "text-red-400"}`}>{won ? "VICTORY" : "DEFEAT"}</span>
+          <span className="text-sm text-muted-foreground">{match.metadata.map.name}</span>
+          <span className="text-xs text-muted-foreground">{match.metadata.queue.name ?? "Ranked"}</span>
+          <span className="text-xs text-muted-foreground">{duration}m</span>
+          <span className="text-xs text-muted-foreground">{dateStr}</span>
+        </div>
+        <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+      </div>
+      <div className="grid grid-cols-2 gap-2 px-3 pb-3">
+        <div>
+          <div className="mb-2 flex items-center gap-2">
+            <span className="label-hud text-xs">{team?.team_id ?? "Team"}</span>
+            <span className={`text-xs ${won ? "text-green-400" : "text-red-400"}`}>{team?.rounds.won ?? 0} - {team?.rounds.lost ?? 0}</span>
+          </div>
+          <div className="space-y-1">
+            {teammates.map((p) => (
+              <div key={p.puuid} className={`flex items-center gap-2 rounded px-2 py-1.5 ${p.name === playerName ? "bg-primary/10" : "bg-background/50"}`}>
+                <AgentImage name={p.agent.name} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <div className={`truncate text-xs font-bold ${p.name === playerName ? "text-primary" : "text-foreground"}`}>
+                    {p.name} <span className="text-muted-foreground">#{p.tag}</span>
+                    {p.name === playerName && <span className="ml-1 text-[0.6rem] text-primary">YOU</span>}
+                  </div>
+                  <div className="text-[0.65rem] text-muted-foreground">{p.agent.name}</div>
+                </div>
+                <PlayerStat kills={p.stats.kills} deaths={p.stats.deaths} assists={p.stats.assists} {...(p.stats.damage ? { damage: p.stats.damage } : {})} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="mb-2 label-hud text-xs">Opponent</div>
+          <div className="space-y-1">
+            {opponents.map((p) => (
+              <div key={p.puuid} className="flex items-center gap-2 rounded px-2 py-1.5 bg-background/50">
+                <AgentImage name={p.agent.name} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-bold text-foreground">{p.name} <span className="text-muted-foreground">#{p.tag}</span></div>
+                  <div className="text-[0.65rem] text-muted-foreground">{p.agent.name}</div>
+                </div>
+                <PlayerStat kills={p.stats.kills} deaths={p.stats.deaths} assists={p.stats.assists} {...(p.stats.damage ? { damage: p.stats.damage } : {})} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const REGIONS = [
   { value: "ap", label: "Asia Pacific" },
@@ -141,8 +210,6 @@ const REGIONS = [
   { value: "sa", label: "South America" },
   { value: "sea", label: "Southeast Asia" },
 ] as const;
-
-// ─── Main Page ────────────────────────────────
 
 function TrackerPage() {
   const [name, setName] = useState("");
@@ -155,10 +222,11 @@ function TrackerPage() {
 
   const [mmr, setMmr] = useState<MMRResponse | null>(null);
   const [matches, setMatches] = useState<MatchResponse["data"]>([]);
-  const [matchCards, setMatchCards] = useState<MatchCardData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
+
+  const [expandedMatch, setExpandedMatch] = useState<string | null>(null);
 
   const handleSearch = useCallback(() => {
     const n = name.trim();
@@ -172,7 +240,7 @@ function TrackerPage() {
     setNotFound(false);
     setMmr(null);
     setMatches([]);
-    setMatchCards([]);
+    setExpandedMatch(null);
 
     (async () => {
       try {
@@ -189,36 +257,7 @@ function TrackerPage() {
 
         if (mmrRes.status === 200 && mmrRes.data) setMmr(mmrRes);
         if (matchRes.status === 200) {
-          const data = matchRes.data ?? [];
-          setMatches(data);
-
-          const cards: MatchCardData[] = data.map((m) => {
-            const player = m.players.find((p) => p.name.toLowerCase() === n.toLowerCase() && p.tag.toLowerCase() === t.toLowerCase());
-            if (!player) return null;
-            const team = m.teams.find((tm) => tm.team_id === player.team_id);
-            const won = team?.won ?? false;
-            const roundsWon = team?.rounds.won ?? 0;
-            const roundsLost = team?.rounds.lost ?? 0;
-            const totalShots = player.stats.headshots + player.stats.bodyshots + player.stats.legshots;
-            const hsPercent = totalShots > 0 ? ((player.stats.headshots / totalShots) * 100).toFixed(0) : "0";
-            const kdRatio = player.stats.deaths > 0 ? (player.stats.kills / player.stats.deaths).toFixed(2) : player.stats.kills.toFixed(2);
-            const acs = Math.round(player.stats.score / Math.max(1, m.metadata.game_length_in_ms / 60000));
-            const date = new Date(m.metadata.started_at);
-            const dateStr = `${String(date.getDate()).padStart(2, "0")} ${date.toLocaleString("en", { month: "short" })}`;
-            return {
-              map: m.metadata.map.name,
-              result: won ? "victory" : "defeat",
-              score: `${roundsWon} - ${roundsLost}`,
-              kda: `${player.stats.kills} / ${player.stats.deaths} / ${player.stats.assists}`,
-              kd: kdRatio,
-              hs: `${hsPercent}%`,
-              acs: String(acs),
-              agent: player.agent.name,
-              mode: m.metadata.queue.name ?? "Unknown",
-              date: dateStr,
-            };
-          }).filter(Boolean) as MatchCardData[];
-          setMatchCards(cards);
+          setMatches(matchRes.data ?? []);
         }
       } catch (e) {
         setError((e as Error).message);
@@ -232,7 +271,6 @@ function TrackerPage() {
     if (e.key === "Enter") handleSearch();
   }, [handleSearch]);
 
-  // Calculate stats from matches
   const playerMatches = matches.map((m) => {
     const player = m.players.find((p) => p.name.toLowerCase() === searchName.toLowerCase() && p.tag.toLowerCase() === searchTag.toLowerCase());
     if (!player) return null;
@@ -240,6 +278,7 @@ function TrackerPage() {
     return { ...m, player, won: team?.won ?? false };
   }).filter(Boolean) as Array<{
     metadata: MatchResponse["data"][0]["metadata"];
+    players: MatchResponse["data"][0]["players"];
     player: MatchResponse["data"][0]["players"][0];
     won: boolean;
     teams: MatchResponse["data"][0]["teams"];
@@ -278,7 +317,6 @@ function TrackerPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 pt-24 sm:px-6">
-      {/* Header */}
       <Reveal>
         <div className="mb-8 text-center">
           <span className="label-hud text-primary">Player Tracker</span>
@@ -289,7 +327,6 @@ function TrackerPage() {
         </div>
       </Reveal>
 
-      {/* Search Form */}
       <Reveal delay={0.05}>
         <div className="mx-auto mb-10 flex max-w-2xl flex-col gap-3 sm:flex-row">
           <input
@@ -332,7 +369,6 @@ function TrackerPage() {
         </div>
       </Reveal>
 
-      {/* Error */}
       {error && (
         <Reveal>
           <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
@@ -342,7 +378,6 @@ function TrackerPage() {
         </Reveal>
       )}
 
-      {/* Not Found */}
       {notFound && (
         <Reveal>
           <div className="mb-6 flex flex-col items-center gap-3 rounded-lg border border-border bg-background/50 px-4 py-12 text-center">
@@ -352,7 +387,6 @@ function TrackerPage() {
         </Reveal>
       )}
 
-      {/* Loading */}
       {loading && (
         <div className="flex h-64 items-center justify-center">
           <div className="text-center">
@@ -362,14 +396,12 @@ function TrackerPage() {
         </div>
       )}
 
-      {/* Results */}
       {!loading && !error && !notFound && searched && mmr && (
         <>
-          {/* Player Header */}
           <Reveal>
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="flex items-center gap-4">
-                <RankIcon tierId={mmr.data.current.tier.id} size={64} />
+                <RankBadge tierId={mmr.data.current.tier.id} />
                 <div>
                   <div className="text-display text-3xl font-bold">{mmr.data.current.tier.name}</div>
                   <div className="text-sm text-muted-foreground">
@@ -389,20 +421,18 @@ function TrackerPage() {
             </div>
           </Reveal>
 
-          {/* Peak Rank */}
           {mmr.data.peak && (
             <Reveal delay={0.05}>
               <div className="mb-6 flex items-center gap-3 rounded-lg border border-border/50 bg-background/50 px-4 py-3">
                 <Trophy className="h-4 w-4 text-yellow-500" />
                 <span className="text-sm text-muted-foreground">Peak:</span>
-                <span className="text-display font-bold">{mmr.data.peak.tier.name}</span>
+                <RankBadge tierId={mmr.data.peak.tier.id} />
                 <span className="text-sm text-muted-foreground">{mmr.data.peak.rr} RR</span>
                 <span className="text-xs text-muted-foreground">({mmr.data.peak.season.short})</span>
               </div>
             </Reveal>
           )}
 
-          {/* Stats Grid */}
           <section className="mb-8">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               <Reveal delay={0.06}>
@@ -427,56 +457,65 @@ function TrackerPage() {
           </section>
 
           <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
-            {/* Match History */}
             <section>
               <h2 className="label-hud mb-4 text-primary">Recent Matches</h2>
               <div className="space-y-2">
                 {playerMatches.map((m, i) => {
                   const p = m.player;
-                  const totalShots = p.stats.headshots + p.stats.bodyshots + p.stats.legshots;
-                  const hs = totalShots > 0 ? ((p.stats.headshots / totalShots) * 100).toFixed(0) : "0";
+                  const isExpanded = expandedMatch === m.metadata.match_id;
                   const gameKd = p.stats.deaths > 0 ? (p.stats.kills / p.stats.deaths).toFixed(2) : p.stats.kills.toFixed(2);
-                  const team = m.teams.find((t) => t.team_id === p.team_id);
-                  const rounds = team ? `${team.rounds.won} - ${team.rounds.lost}` : "? - ?";
-                  const date = new Date(m.metadata.started_at);
-                  const dateStr = `${date.getDate()} ${date.toLocaleString("en", { month: "short" })}`;
-                  const duration = Math.round(m.metadata.game_length_in_ms / 60000);
 
                   return (
-                    <Reveal key={m.metadata.match_id} delay={i * 0.04}>
-                      <div className={`panel grain flex flex-col gap-3 p-4 transition-all hover:border-primary/30 sm:flex-row sm:items-center sm:gap-4 ${m.won ? "border-l-2 border-l-green-500" : "border-l-2 border-l-red-500"}`}>
-                        <div className="flex items-center gap-3 sm:w-28">
-                          <div className={`flex h-8 w-8 items-center justify-center rounded text-xs font-bold ${m.won ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
-                            {m.won ? "W" : "L"}
+                    <div key={m.metadata.match_id}>
+                      <Reveal delay={i * 0.04}>
+                        <div
+                          className={`panel grain flex cursor-pointer flex-col gap-3 p-4 transition-all hover:border-primary/30 sm:flex-row sm:items-center sm:gap-4 ${m.won ? "border-l-2 border-l-green-500" : "border-l-2 border-l-red-500"}`}
+                          onClick={() => setExpandedMatch(isExpanded ? null : m.metadata.match_id)}
+                        >
+                          <div className="flex items-center gap-3 sm:w-28">
+                            <div className={`flex h-8 w-8 items-center justify-center rounded text-xs font-bold ${m.won ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+                              {m.won ? "W" : "L"}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {m.teams.find((t) => t.team_id === p.team_id)?.rounds.won ?? 0} - {m.teams.find((t) => t.team_id === p.team_id)?.rounds.lost ?? 0}
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground">{rounds}</div>
-                        </div>
-                        <div className="flex items-center gap-3 sm:w-40">
-                          <AgentImage name={p.agent.name} size="sm" />
-                          <div className="text-sm font-bold">{p.agent.name}</div>
-                          <div className="text-xs text-muted-foreground">{m.metadata.map.name}</div>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm">
-                          <div>
-                            <span className="font-bold">{p.stats.kills}</span>
-                            <span className="text-muted-foreground">/</span>
-                            <span className="text-red-400">{p.stats.deaths}</span>
-                            <span className="text-muted-foreground">/</span>
-                            <span className="text-muted-foreground">{p.stats.assists}</span>
+                          <div className="flex items-center gap-3 sm:w-40">
+                            <AgentImage name={p.agent.name} size="sm" />
+                            <div className="text-sm font-bold">{p.agent.name}</div>
+                            <div className="text-xs text-muted-foreground">{m.metadata.map.name}</div>
                           </div>
-                          <div className="text-xs text-muted-foreground">{gameKd} K/D</div>
+                          <div className="flex items-center gap-4 text-sm">
+                            <div>
+                              <span className="font-bold">{p.stats.kills}</span>
+                              <span className="text-muted-foreground">/</span>
+                              <span className="text-red-400">{p.stats.deaths}</span>
+                              <span className="text-muted-foreground">/</span>
+                              <span className="text-muted-foreground">{p.stats.assists}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">{gameKd} K/D</div>
+                          </div>
+                          <div className="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
+                            <span>{p.stats.score} ACS</span>
+                            <span>{m.metadata.queue.name ?? "Ranked"}</span>
+                            <span>{m.metadata.queue.name ?? "Ranked"}</span>
+                            <span>{Math.round(m.metadata.game_length_in_ms / 60000)}m</span>
+                          </div>
+                          <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
+                            {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                            <span className="hidden sm:inline">{isExpanded ? "Hide" : "Details"}</span>
+                          </div>
                         </div>
-                        <div className="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
-                          <span>{hs}% HS</span>
-                          <span>{p.stats.score} ACS</span>
-                        </div>
-                        <div className="ml-auto flex items-center gap-3 text-xs text-muted-foreground">
-                          <span>{m.metadata.queue.name ?? "Ranked"}</span>
-                          <span>{duration}m</span>
-                          <span>{dateStr}</span>
-                        </div>
-                      </div>
-                    </Reveal>
+                      </Reveal>
+                      {isExpanded && (
+                        <MatchDetail
+                          match={m}
+                          playerName={searchName}
+                          playerTag={searchTag}
+                          onClose={() => setExpandedMatch(null)}
+                        />
+                      )}
+                    </div>
                   );
                 })}
 
@@ -488,7 +527,6 @@ function TrackerPage() {
               </div>
             </section>
 
-            {/* Sidebar */}
             <section>
               <h2 className="label-hud mb-4 text-primary">Agent Performance</h2>
               <div className="space-y-2">
@@ -545,7 +583,6 @@ function TrackerPage() {
         </>
       )}
 
-      {/* Empty state after search */}
       {!loading && !error && !notFound && searched && !mmr && (
         <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-background/50 px-4 py-12 text-center">
           <Crosshair className="h-8 w-8 text-muted-foreground" />
@@ -553,7 +590,6 @@ function TrackerPage() {
         </div>
       )}
 
-      {/* Initial hint */}
       {!searched && !loading && (
         <Reveal>
           <div className="mx-auto mt-4 max-w-md text-center">
@@ -563,6 +599,18 @@ function TrackerPage() {
           </div>
         </Reveal>
       )}
+    </div>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, color = "text-foreground" }: { icon: React.ElementType; label: string; value: string; color?: string }) {
+  return (
+    <div className="panel grain p-4">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <Icon className="h-3.5 w-3.5" />
+        <span className="label-hud">{label}</span>
+      </div>
+      <div className={`text-display mt-1 text-2xl font-bold ${color}`}>{value}</div>
     </div>
   );
 }
