@@ -377,6 +377,18 @@ function TrackerPage() {
         <>
           <Reveal>
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+              {mmr.data.current && (
+                <Reveal delay={0.08}>
+                  <div className="mt-3 flex items-center gap-3">
+                    <RankBadge tierId={mmr.data.current.tier.id} />
+                    <div>
+                      <span className="label-hud text-primary">Current Rank</span>
+                      <div className="text-sm font-bold">{mmr.data.current.tier.name}</div>
+                      <div className="text-xs text-muted-foreground">{mmr.data.current.rr} RR</div>
+                    </div>
+                  </div>
+                </Reveal>
+              )}
               {mmr.data.peak && (
                 <Reveal delay={0.08}>
                   <div className="mt-3 flex items-center gap-3">
