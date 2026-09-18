@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef } from "react";
 
-import heroAgent from "@/assets/hero-agent.png";
+import heroAgent from "@/assets/hero-agent.webp";
 import { ProfileCard } from "@/components/site/ProfileCard";
 import { Reveal, SectionTitle } from "@/components/site/Reveal";
 import { playerConfig } from "@/config/player";

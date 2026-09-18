@@ -423,6 +423,20 @@ function TrackerPage() {
                   </div>
                 </div>
               </div>
+              {mmr.data.peak && (
+                <Reveal delay={0.08}>
+                  <div className="mt-3 flex items-center gap-3">
+                    <RankBadge tierId={mmr.data.peak.tier.id} showName={false} />
+                    <div>
+                      <span className="label-hud text-muted-foreground">Peak Rank</span>
+                      <div className="text-sm font-bold">{mmr.data.peak.tier.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {mmr.data.peak.rr} RR — Season {mmr.data.peak.season.short}
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              )}
               <div className="sm:ml-auto">
                 <span className="label-hud text-primary">Tracker</span>
                 <h2 className="text-display text-2xl font-bold">{mmr.data.account.name} #{mmr.data.account.tag}</h2>

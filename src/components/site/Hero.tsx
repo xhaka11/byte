@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, MonitorPlay, Target } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 
-import heroAgent from "@/assets/hero-agent.png";
+import heroAgent from "@/assets/hero-agent.webp";
 import { ProfileCard } from "./ProfileCard";
 import { playerConfig } from "@/config/player";
 
