@@ -498,8 +498,8 @@ function TrackerPage() {
                           <div className="hidden items-center gap-4 text-xs text-muted-foreground sm:flex">
                             <span>{p.stats.score} ACS</span>
                             <span>{m.metadata.queue.name ?? "Ranked"}</span>
-                            <span>{m.metadata.queue.name ?? "Ranked"}</span>
                             <span>{Math.round(m.metadata.game_length_in_ms / 60000)}m</span>
+                            <span>{new Date(m.metadata.started_at).getDate()} {new Date(m.metadata.started_at).toLocaleString("en", { month: "short" })}</span>
                           </div>
                           <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
                             {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
