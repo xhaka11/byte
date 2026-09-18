@@ -427,12 +427,6 @@ function TrackerPage() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.05}>
-            <div className="mb-6 flex items-center gap-2 rounded-lg border border-border/30 bg-background/30 px-4 py-2">
-              <span className="text-[0.65rem] text-muted-foreground">Data from Henrik API · may not be 100% accurate</span>
-            </div>
-          </Reveal>
-
           <section className="mb-8">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               <Reveal delay={0.06}>
