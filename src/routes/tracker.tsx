@@ -5,6 +5,7 @@ import { Search, Crosshair, Trophy, Activity, Swords, Target, Flame, AlertCircle
 import { Reveal } from "@/components/site/Reveal";
 import { AgentImage } from "@/components/site/AgentImage";
 import { getMMRByName, getMatchesByName, type MatchCardData } from "@/lib/valorant-api";
+import { playerConfig } from "@/config/player";
 
 export const Route = createFileRoute("/tracker")({
   head: () => ({
@@ -163,7 +164,7 @@ function MatchDetail({ match, playerName, playerTag, onClose }: MatchDetailProps
         </div>
         <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
       </div>
-      <div className="grid grid-cols-2 gap-2 px-3 pb-3">
+      <div className="grid grid-cols-1 gap-2 px-3 pb-3 sm:grid-cols-2">
         <div>
           <div className="mb-2 flex items-center gap-2">
             <span className="label-hud text-xs">{team?.team_id ?? "Team"}</span>
@@ -291,6 +292,8 @@ function TrackerPage() {
   const totalGames = playerMatches.length;
   const wins = playerMatches.filter((m) => m.won).length;
   const losses = totalGames - wins;
+  const winRate = playerConfig.stats.winRate;
+
   const totalKills = playerMatches.reduce((s, m) => s + m.player.stats.kills, 0);
   const totalDeaths = playerMatches.reduce((s, m) => s + m.player.stats.deaths, 0);
   const totalAssists = playerMatches.reduce((s, m) => s + m.player.stats.assists, 0);
@@ -304,7 +307,6 @@ function TrackerPage() {
   const hsPercent = totalGames > 0 ? ((totalHS / totalGames) * 100).toFixed(1) : "0";
   const avgACS = totalGames > 0 ? Math.round(totalScore / totalGames) : 0;
   const avgDamage = totalGames > 0 ? Math.round(totalKills / totalGames) : 0;
-  const winRate = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(1) : "0";
 
   const agentMap = new Map<string, { name: string; games: number; wins: number; kills: number; deaths: number; assists: number }>();
   for (const m of playerMatches) {
