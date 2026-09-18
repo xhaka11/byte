@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
 import { Search, Crosshair, Trophy, Activity, Swords, Target, Flame, AlertCircle, ChevronDown, ChevronUp, X } from "lucide-react";
 
+import { stripDiacritics } from "@/lib/normalize";
 import { Reveal } from "@/components/site/Reveal";
 import { AgentImage } from "@/components/site/AgentImage";
 import { getMMRByName, getMatchesByName, type MatchCardData } from "@/lib/valorant-api";
@@ -105,7 +106,7 @@ interface MatchDetailProps {
 
 function MatchDetail({ match, playerName, playerTag, onClose }: MatchDetailProps) {
   const player = match.players.find(
-    (p) => p.name.toLowerCase() === playerName.toLowerCase() && p.tag.toLowerCase() === playerTag.toLowerCase()
+    (p) => stripDiacritics(p.name).toLowerCase() === stripDiacritics(playerName).toLowerCase() && stripDiacritics(p.tag).toLowerCase() === stripDiacritics(playerTag).toLowerCase()
   );
   if (!player) return null;
 
@@ -248,7 +249,7 @@ function TrackerPage() {
   }, [handleSearch]);
 
   const playerMatches = matches.map((m) => {
-    const player = m.players.find((p) => p.name.toLowerCase() === searchName.toLowerCase() && p.tag.toLowerCase() === searchTag.toLowerCase());
+    const player = m.players.find((p) => stripDiacritics(p.name).toLowerCase() === stripDiacritics(searchName).toLowerCase() && stripDiacritics(p.tag).toLowerCase() === stripDiacritics(searchTag).toLowerCase());
     if (!player) return null;
     const team = m.teams.find((t) => t.team_id === player.team_id);
     return { ...m, player, won: team?.won ?? false };

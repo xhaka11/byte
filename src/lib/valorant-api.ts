@@ -1,3 +1,4 @@
+import { stripDiacritics } from "@/lib/normalize";
 import { henrikConfig } from "@/config/api";
 
 const headers = {
@@ -124,7 +125,7 @@ export async function fetchRecentMatches(count = 8): Promise<MatchCardData[]> {
 
     return res.data.map((match) => {
       const player = match.players.find(
-        (p) => p.name.toLowerCase() === henrikConfig.name.toLowerCase() && p.tag.toLowerCase() === henrikConfig.tag.toLowerCase(),
+        (p) => stripDiacritics(p.name).toLowerCase() === stripDiacritics(henrikConfig.name).toLowerCase() && stripDiacritics(p.tag).toLowerCase() === stripDiacritics(henrikConfig.tag).toLowerCase()
       );
       if (!player) return null;
 
