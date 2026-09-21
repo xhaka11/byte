@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { AlertCircle } from "lucide-react";
 import { MatchCard } from "@/components/site/MatchCard";
 import { useMatches } from "@/hooks/useMatches";
 
@@ -49,8 +50,11 @@ function MatchHistoryPage() {
       )}
 
       {error && (
-        <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
-          <p className="text-sm text-red-300">{error}</p>
+        <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-4 w-4 text-primary" />
+            <p className="text-sm text-muted-foreground">{error}</p>
+          </div>
         </div>
       )}
 

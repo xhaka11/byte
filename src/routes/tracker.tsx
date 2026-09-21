@@ -349,9 +349,18 @@ function TrackerPage() {
 
       {error && (
         <Reveal>
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
-            <AlertCircle className="h-4 w-4 text-red-400" />
-            <span className="text-sm text-red-300">{error}</span>
+          <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-4 w-4 text-primary" />
+              <span className="text-sm text-muted-foreground">{error}</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleSearch}
+              className="shrink-0 text-xs font-bold uppercase tracking-wider text-primary hover:text-primary-foreground transition-colors"
+            >
+              Retry
+            </button>
           </div>
         </Reveal>
       )}

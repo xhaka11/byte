@@ -17,7 +17,7 @@ function buildUrl(path: string, params?: Record<string, string | number>) {
 
 async function henrikFetch<T>(path: string, params?: Record<string, string | number>): Promise<T> {
   const res = await fetch(buildUrl(path, params), { headers });
-  if (!res.ok) throw new Error(`Henrik API error: ${res.status}`);
+  if (!res.ok) throw new Error("Server Busy, try again later");
   return res.json();
 }
 
